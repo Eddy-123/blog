@@ -4,4 +4,10 @@
     {% for post in posts %}
         <p>{{ post.title }}</p>
     {% endfor %}
+    
+    <ul>
+        {% for page in range %}
+            <li>{{ page }}</li>
+        {% endfor %}        
+    </ul>
 {% endblock %}

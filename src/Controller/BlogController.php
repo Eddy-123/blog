@@ -20,13 +20,21 @@ class BlogController extends AbstractController
         $this->repository = $repository;
     }
     /**
-     * @Route("/", name="blog_home")
+     * @Route(
+     *      "/{page}/{limit}", 
+     *      name="blog_home",  
+     *      defaults={"page": 1, "limit": 2}
+     * )
      */
-    public function home(): Response
+    public function home($page, $limit): Response
     {
-        $posts = $this->repository->findAll();
+        $posts = $this->repository->findPaginatedPosts($page, $limit);
+        $pages = ceil($posts->count() / $limit);
+        $range = range(max(1, $page - 3), min($page + 3, $pages));
         return $this->render("blog/home.html.twig", [
-            "posts" => $posts
+            "posts" => $posts,
+            "pages" => $pages,
+            "range" => $range
         ]);
     }
 }
