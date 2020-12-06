@@ -20,13 +20,13 @@ class Comment
 
     /**
      * @ORM\Column
-     * @var string
+     * @var ?string
      */
     private $author;    
     
     /**
      * @ORM\Column(type="text")
-     * @var string
+     * @var ?string
      */
     private $content;
     
@@ -51,11 +51,11 @@ class Comment
         return $this->id;
     }
     
-    function getAuthor(): string {
+    function getAuthor(): ?string {
         return $this->author;
     }
 
-    function getContent(): string {
+    function getContent(): ?string {
         return $this->content;
     }
 

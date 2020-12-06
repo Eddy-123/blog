@@ -3,6 +3,11 @@
 {% block body %}
     <h1 class="text-center">{{ post.title }}</h1>
     <p>{{ post.content }}</p>
+    {{ form_start(form) }}
+        {{ form_row(form.author) }}
+        {{ form_row(form.content) }}
+        <button>Commenter</button>
+    {{ form_end(form) }}
     {% for comment in post.comments %}
         <p>{{ comment.content }}</p>
     {% endfor %}
