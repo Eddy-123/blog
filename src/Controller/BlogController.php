@@ -7,6 +7,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
 use App\Repository\PostRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Entity\Post;
 
 class BlogController extends AbstractController
 {
@@ -23,7 +24,8 @@ class BlogController extends AbstractController
      * @Route(
      *      "/{page}/{limit}", 
      *      name="blog_home",  
-     *      defaults={"page": 1, "limit": 2}
+     *      defaults={"page": 1, "limit": 10}, 
+     *      requirements={"page"="\d+"}
      * )
      */
     public function home($page, $limit): Response
@@ -35,6 +37,16 @@ class BlogController extends AbstractController
             "posts" => $posts,
             "pages" => $pages,
             "range" => $range
+        ]);
+    }
+    
+    /**
+     * @Route("/article/{id}", name="blog_read")
+     */
+    public function read(Post $post): Response
+    {
+        return $this->render("blog/read.html.twig", [
+            "post" => $post
         ]);
     }
 }

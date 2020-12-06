@@ -2,12 +2,16 @@
 
 {% block body %}
     {% for post in posts %}
-        <p>{{ post.title }}</p>
+        <p><a href="{{ path('blog_read', {'id': post.id}) }}">{{ post.title }}</a></p>
     {% endfor %}
     
-    <ul>
+    <ul class="pagination">
         {% for page in range %}
-            <li>{{ page }}</li>
+            <li class="page-item">
+                <a href="{{ path('blog_home', {"page" : page}) }}" class="page-link">
+                    {{ page }}
+                </a>
+            </li>
         {% endfor %}        
     </ul>
 {% endblock %}
