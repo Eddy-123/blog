@@ -2,7 +2,20 @@
 
 {% block body %}
     {% for post in posts %}
-        <p><a href="{{ path('blog_read', {'id': post.id}) }}">{{ post.title }}</a></p>
+        <div>
+            <p>
+                <a href="{{ path('blog_read', {'id': post.id}) }}">
+                    {{ post.title }}
+                </a>
+                |
+                <a href="{{ path('blog_update', {'id': post.id}) }}">
+                    Modifier
+                </a>
+            </p>
+            <p>
+                <img src="{{ asset(post.image) }}" alt="{{ post.title }}"/>
+            </p>
+        </div>
     {% endfor %}
     
     <ul class="pagination">

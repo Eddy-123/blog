@@ -2,15 +2,16 @@
 
 namespace App\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\Response;
+use App\Entity\Comment;
+use App\Entity\Post;
+use App\Form\CommentType;
 use App\Repository\PostRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Entity\Post;
-use App\Entity\Comment;
-use App\Form\CommentType;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use App\Form\PostType;
 
 class BlogController extends AbstractController
 {
@@ -63,6 +64,77 @@ class BlogController extends AbstractController
 
         return $this->render("blog/read.html.twig", [
             "post" => $post,
+            "form" => $form->createView()
+        ]);
+    }
+    
+    /**
+     * @Route("/article", name="blog_create")
+     */
+    public function create(Request $request, string $uploadsAbsoluteDir, string $uploadsRelativeDir): Response
+    {
+        $post = new Post();
+        $form = $this->createForm(PostType::class, $post, [
+            "validation_groups" => ["default", "create"]
+        ]);
+        $form->handleRequest($request);
+        
+        if($form->isSubmitted() && $form->isValid()){
+
+            /** @var UploadedFile $file */
+            $file = $form->get("file")->getData();
+            $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $safeFilename = transliterator_transliterate('Any-Latin; Latin-ASCII; [^A-Za-z0-9_] remove; Lower()', $originalFilename);
+            $newFilename = $safeFilename . '_' . uniqid() . '.' . $file->guessExtension();
+            
+            $file->move($uploadsAbsoluteDir, $newFilename);
+            
+            $post->setImage($uploadsRelativeDir . '/' . $newFilename);
+            
+            $this->manager->persist($post);
+            $this->manager->flush();
+            return $this->redirectToRoute("blog_read", [
+                "id" => $post->getId()
+            ]);
+        }
+            
+        return $this->render("blog/create.html.twig", [
+            "form" => $form->createView()
+        ]);
+    }
+    
+    /**
+     * @Route("/modifier/{id}", name="blog_update")
+     */
+    public function update(
+        Post $post, 
+        Request $request, 
+        string $uploadsAbsoluteDir, 
+        string $uploadsRelativeDir
+    ): Response {
+        $form = $this->createForm(PostType::class, $post);
+        $form->handleRequest($request);
+        if($form->isSubmitted() && $form->isValid()){
+
+            /** @var UploadedFile $file */
+            $file = $form->get("file")->getData();
+            if($file !== null){
+                $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = transliterator_transliterate('Any-Latin; Latin-ASCII; [^A-Za-z0-9_] remove; Lower()', $originalFilename);
+                $newFilename = $safeFilename . '_' . uniqid() . '.' . $file->guessExtension();
+
+                $file->move($uploadsAbsoluteDir, $newFilename);
+
+                $post->setImage($uploadsRelativeDir . '/' . $newFilename);
+            }
+            
+            $this->manager->flush();
+            return $this->redirectToRoute("blog_read", [
+                "id" => $post->getId()
+            ]);
+        }
+        
+        return $this->render("blog/update.html.twig", [
             "form" => $form->createView()
         ]);
     }

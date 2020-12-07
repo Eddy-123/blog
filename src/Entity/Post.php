@@ -6,6 +6,7 @@ use App\Repository\PostRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=PostRepository::class)
@@ -21,16 +22,24 @@ class Post
     private $id;
     
     /**
+     * @Assert\NotBlank
      * @ORM\Column
      * @var string
      */
     private $title;
     
     /**
+     * @Assert\NotBlank
      * @ORM\Column(type="text")
      * @var string
      */
     private $content;
+    
+    /**
+     * @ORM\Column
+     * @var string
+     */
+    private $image;
     
     /**
      * @ORM\Column(type="datetime_immutable")
@@ -53,11 +62,11 @@ class Post
         return $this->id;
     }
     
-    function getTitle(): string {
+    function getTitle(): ?string {
         return $this->title;
     }
 
-    function getContent(): string {
+    function getContent(): ?string {
         return $this->content;
     }
 
@@ -76,7 +85,16 @@ class Post
     function setPublishedAt(\DateTimeImmutable $publishedAt): void {
         $this->publishedAt = $publishedAt;
     }
+    
+    function getImage(): string {
+        return $this->image;
+    }
 
+    function setImage(string $image): void {
+        $this->image = $image;
+    }
+
+    
     /**
      * @return Collection|Comment[]
      */

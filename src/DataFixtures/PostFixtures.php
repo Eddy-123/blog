@@ -14,6 +14,7 @@ class PostFixtures extends Fixture {
             $post = new Post();
             $post->setTitle("Titre " . $i);
             $post->setContent("Contenu " . $i);
+            $post->setImage(sprintf("https://picsum.photos/seed/%d/400/300", $i));
             $manager->persist($post);
             
             for($j = 1; $j <= 5; $j++){
