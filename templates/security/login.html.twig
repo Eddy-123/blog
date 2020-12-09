@@ -1,0 +1,11 @@
+{% extends "base.html.twig" %}
+
+{% block body %}
+    <h3>Page de connexion</h3>
+    {{ form_start(form) }}
+        {{ form_errors(form) }}
+        {{ form_row(form.username) }}
+        {{ form_row(form.password) }}
+        <button>Connexion</button>
+    {{ form_end(form) }}
+{% endblock %}
