@@ -15,6 +15,8 @@ security:
         main:
             anonymous: lazy
             provider: users
+            logout:
+                path: security_logout
             guard:
                 authenticators:
                     - App\Security\Guard\WebAuthenticator

@@ -15,9 +15,15 @@
         <h5>
             <a href="{{ path("blog_create") }}">Créer un article</a>
         </h5>
-        <h5>
-            <a href="{{ path("security_login") }}">Se connecter</a>
-        </h5>
+        {% if is_granted("ROLE_USER") %}
+            <h5>
+                <a href="{{ path("security_logout") }}">Déconnexion</a>
+            </h5>
+        {% else %}
+            <h5>
+                <a href="{{ path("security_login") }}">Connexion</a>
+            </h5>
+        {% endif %}
         {% block body %}{% endblock %}
         {% block javascripts %}
             <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>

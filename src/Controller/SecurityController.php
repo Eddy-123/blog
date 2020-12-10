@@ -29,4 +29,10 @@ class SecurityController extends AbstractController{
             "form" => $form->createView()
         ]);
     }
+    /**
+     * @Route("/deconnexion", name="security_logout")
+     */
+    public function logout(){
+        
+    }
 }
