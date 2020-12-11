@@ -51,7 +51,7 @@ class User implements UserInterface
         return $this->id;
     }
     
-    function getEmail(): string {
+    function getEmail(): ?string {
         return $this->email;
     }
 
@@ -59,7 +59,7 @@ class User implements UserInterface
         return $this->password;
     }
 
-    function getPseudo(): string {
+    function getPseudo(): ?string {
         return $this->pseudo;
     }
 
