@@ -20,9 +20,9 @@ class Comment
     private $id;
 
     /**
-     * @Assert\NotBlank
-     * @ORM\Column
+     * @ORM\Column(nullable=true)
      * @var ?string
+     * @Assert\NotBlank(groups={"anonymous"})
      */
     private $author;    
     
@@ -45,6 +45,12 @@ class Comment
      */
     private $post;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class)
+     * @var User
+     */
+    private $user;
+    
     public function __construct() {
         $this->postedAt = new \DateTimeImmutable();
     }
@@ -66,6 +72,15 @@ class Comment
         return $this->postedAt;
     }
 
+    function getUser(): ?User {
+        return $this->user;
+    }
+
+    function setUser(User $user): void {
+        $this->user = $user;
+    }
+
+        
     function setAuthor(string $author): void {
         $this->author = $author;
     }

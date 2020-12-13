@@ -12,10 +12,10 @@
         <h5>
             <a href="{{ path("blog_home") }}">Acceuil</a>
         </h5>
-        <h5>
-            <a href="{{ path("blog_create") }}">Créer un article</a>
-        </h5>
         {% if is_granted("ROLE_USER") %}
+            <h5>
+                <a href="{{ path("blog_create") }}">Créer un article</a>
+            </h5>
             <h5>
                 <a href="{{ path("security_logout") }}">Déconnexion</a>
             </h5>

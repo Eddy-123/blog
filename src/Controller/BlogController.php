@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Form\PostType;
 use App\Uploader\UploaderInterface;
+use App\Security\Voter\PostVoter;
 
 class BlogController extends AbstractController
 {
@@ -51,7 +52,14 @@ class BlogController extends AbstractController
     public function read(Post $post, Request $request): Response
     {
         $comment = new Comment();
-        $form = $this->createForm(CommentType::class, $comment);
+        
+        if($this->isGranted("ROLE_USER")){
+            $comment->setUser($this->getUser());
+        }
+        
+        $form = $this->createForm(CommentType::class, $comment, [
+            "validation_groups" => $this->isGranted("ROLE_USER") ? "Default" : ["Default", "anonymous"]
+        ]);
         $form->handleRequest($request);
         
         if($form->isSubmitted() && $form->isValid()){
@@ -76,7 +84,9 @@ class BlogController extends AbstractController
         Request $request, 
         UploaderInterface $uploader
     ): Response {
+        $this->denyAccessUnlessGranted("ROLE_USER");
         $post = new Post();
+        $post->setUser($this->getUser());
         $form = $this->createForm(PostType::class, $post, [
             "validation_groups" => ["default", "create"]
         ]);
@@ -106,6 +116,8 @@ class BlogController extends AbstractController
         Request $request, 
         UploaderInterface $uploader
     ): Response {
+        $this->denyAccessUnlessGranted(PostVoter::EDIT, $post);
+        
         $form = $this->createForm(PostType::class, $post);
         $form->handleRequest($request);
         if($form->isSubmitted() && $form->isValid()){

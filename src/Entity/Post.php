@@ -52,6 +52,12 @@ class Post
      */
     private $comments;
     
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class)
+     * @var User
+     */
+    private $user;
+    
     public function __construct() {
         $this->publishedAt = new \DateTimeImmutable();
         $this->comments = new ArrayCollection();
@@ -93,8 +99,15 @@ class Post
     function setImage(string $image): void {
         $this->image = $image;
     }
-
     
+    function getUser(): User {
+        return $this->user;
+    }
+
+    function setUser(User $user): void {
+        $this->user = $user;
+    }
+
     /**
      * @return Collection|Comment[]
      */

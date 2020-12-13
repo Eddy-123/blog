@@ -7,11 +7,13 @@
     </p>
     <p>{{ post.content }}</p>
     {{ form_start(form) }}
-        {{ form_row(form.author) }}
+        {% if form.author is defined %}
+            {{ form_row(form.author) }}
+        {% endif %}
         {{ form_row(form.content) }}
         <button>Commenter</button>
     {{ form_end(form) }}
     {% for comment in post.comments %}
-        <p>{{ comment.content }}</p>
+        <p>{{ comment.author is not null ? comment.author : comment.user.pseudo }} : {{ comment.content }}</p>
     {% endfor %}
 {% endblock %}

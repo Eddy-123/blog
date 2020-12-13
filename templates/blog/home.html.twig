@@ -7,10 +7,12 @@
                 <a href="{{ path('blog_read', {'id': post.id}) }}">
                     {{ post.title }}
                 </a>
-                |
-                <a href="{{ path('blog_update', {'id': post.id}) }}">
-                    Modifier
-                </a>
+                {% if is_granted('EDIT', post) %}
+                    |
+                    <a href="{{ path('blog_update', {'id': post.id}) }}">
+                        Modifier
+                    </a>
+                {% endif %}
             </p>
             <p>
                 <img src="{{ asset(post.image) }}" alt="{{ post.title }}"/>
