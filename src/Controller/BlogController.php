@@ -15,6 +15,7 @@ use App\Form\PostType;
 use App\Uploader\UploaderInterface;
 use App\Security\Voter\PostVoter;
 use App\Handler\CommentHandler;
+use App\Handler\PostHandler;
 
 class BlogController extends AbstractController
 {
@@ -62,11 +63,6 @@ class BlogController extends AbstractController
             $comment->setUser($this->getUser());
         }
         
-        $form = $this->createForm(CommentType::class, $comment, [
-            "validation_groups" => $this->isGranted("ROLE_USER") ? "Default" : ["Default", "anonymous"]
-        ]);
-        $form->handleRequest($request);
-        
         $options = [
             "validation_groups" => $this->isGranted("ROLE_USER") ? "Default" : ["Default", "anonymous"]
         ];
@@ -79,7 +75,7 @@ class BlogController extends AbstractController
 
         return $this->render("blog/read.html.twig", [
             "post" => $post,
-            "form" => $form->createView()
+            "form" => $commentHandler->createView()
         ]);
     }
     
@@ -88,29 +84,23 @@ class BlogController extends AbstractController
      */
     public function create(
         Request $request, 
-        UploaderInterface $uploader
+        PostHandler $postHandler
     ): Response {
         $this->denyAccessUnlessGranted("ROLE_USER");
         $post = new Post();
         $post->setUser($this->getUser());
-        $form = $this->createForm(PostType::class, $post, [
+        $options = [
             "validation_groups" => ["default", "create"]
-        ]);
-        $form->handleRequest($request);
+        ];
         
-        if($form->isSubmitted() && $form->isValid()){
-            /** @var UploadedFile $file */
-            $file = $form->get("file")->getData();
-            $post->setImage($uploader->upload($file));
-            $this->manager->persist($post);
-            $this->manager->flush();
+        if($postHandler->handle($request, $post, $options)){
             return $this->redirectToRoute("blog_read", [
                 "id" => $post->getId()
             ]);
         }
             
         return $this->render("blog/create.html.twig", [
-            "form" => $form->createView()
+            "form" => $postHandler->createView()
         ]);
     }
     
@@ -120,26 +110,18 @@ class BlogController extends AbstractController
     public function update(
         Post $post, 
         Request $request, 
-        UploaderInterface $uploader
+        PostHandler $postHandler
     ): Response {
         $this->denyAccessUnlessGranted(PostVoter::EDIT, $post);
-        
-        $form = $this->createForm(PostType::class, $post);
-        $form->handleRequest($request);
-        if($form->isSubmitted() && $form->isValid()){
-            /** @var UploadedFile $file */
-            $file = $form->get("file")->getData();
-            if($file !== null){
-                $post->setImage($uploader->upload($file));
-            }            
-            $this->manager->flush();
+
+        if($postHandler->handle($request, $post)){
             return $this->redirectToRoute("blog_read", [
                 "id" => $post->getId()
             ]);
         }
         
         return $this->render("blog/update.html.twig", [
-            "form" => $form->createView()
+            "form" => $postHandler->createView()
         ]);
     }
 }

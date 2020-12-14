@@ -21,7 +21,7 @@ class Comment
 
     /**
      * @ORM\Column(nullable=true)
-     * @var ?string
+     * @var null|string
      * @Assert\NotBlank(groups={"anonymous"})
      */
     private $author;    
@@ -81,7 +81,7 @@ class Comment
     }
 
         
-    function setAuthor(string $author): void {
+    function setAuthor(?string $author): void {
         $this->author = $author;
     }
 

@@ -6,6 +6,7 @@ use App\Handler\AbstractHandler;
 use Symfony\Component\HttpFoundation\Request;
 use App\Form\CommentType;
 use Doctrine\ORM\EntityManagerInterface;
+use App\DataTransferObject\Comment;
 
 
 class CommentHandler extends AbstractHandler{
@@ -26,4 +27,9 @@ class CommentHandler extends AbstractHandler{
         $this->entityManager->persist($data);
         $this->entityManager->flush();
     }
+
+    protected function getDataTransferObject(): object {
+        return new Comment();
+    }
+
 }

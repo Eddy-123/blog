@@ -10,7 +10,7 @@ interface HandlerInterface {
     /**
      * @param mixed $data
      */
-    public function handle(Request $request, $data, array $options = []): bool;
+    public function handle(Request $request, object $originalData, array $options = []): bool;
     
     public function createView(): FormView;
 }

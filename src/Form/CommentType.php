@@ -2,30 +2,37 @@
 
 namespace App\Form;
 
-use App\Entity\Comment;
+use App\DataTransferObject\Comment;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
-
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 
 class CommentType extends AbstractType
 {
+    /**
+     * @var AuthorizationCheckerInterface
+     */
+    private $authorizationChecker;
+    
+    public function __construct(AuthorizationCheckerInterface $authorizationChecker) {
+        $this->authorizationChecker = $authorizationChecker;
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
             ->add('content')
         ;
         
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event){
-            if($event->getData()->getUser() !== null){
-                return;
-            }
-            
-            $event->getForm()->add('author');
-        });
+        if(!$this->authorizationChecker->isGranted("ROLE_USER"))
+        {
+            $builder->add('author');
+        }
+        
     }
 
     public function configureOptions(OptionsResolver $resolver)
