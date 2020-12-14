@@ -14,6 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Form\PostType;
 use App\Uploader\UploaderInterface;
 use App\Security\Voter\PostVoter;
+use App\Handler\CommentHandler;
 
 class BlogController extends AbstractController
 {
@@ -49,9 +50,13 @@ class BlogController extends AbstractController
     /**
      * @Route("/article/{id}", name="blog_read")
      */
-    public function read(Post $post, Request $request): Response
-    {
+    public function read(
+        Post $post, 
+        Request $request, 
+        CommentHandler $commentHandler
+    ): Response {
         $comment = new Comment();
+        $comment->setPost($post);
         
         if($this->isGranted("ROLE_USER")){
             $comment->setUser($this->getUser());
@@ -62,10 +67,11 @@ class BlogController extends AbstractController
         ]);
         $form->handleRequest($request);
         
-        if($form->isSubmitted() && $form->isValid()){
-            $comment->setPost($post);
-            $this->manager->persist($comment);
-            $this->manager->flush();
+        $options = [
+            "validation_groups" => $this->isGranted("ROLE_USER") ? "Default" : ["Default", "anonymous"]
+        ];
+        
+        if($commentHandler->handle($request, $comment, $options)){
             return $this->redirectToRoute("blog_read", [
                 "id" => $post->getId()
             ]);
