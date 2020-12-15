@@ -6,20 +6,28 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use App\Event\ReverseEvent;
 use App\Event\TransferEvent;
 use Symfony\Component\Security\Core\Security;
-use App\Entity\Comment;
+use App\Uploader\UploaderInterface;
+use App\Entity\Post;
 
-class CommentSubscriber implements EventSubscriberInterface
+
+class PostSubscriber implements EventSubscriberInterface
 {
     /**
      * @var Security
      */
     private $security;
+    
+    /**
+     * @var UploaderInterface 
+     */
+    private $uploader;
 
-    public function __construct(Security $security) {
+    public function __construct(Security $security, UploaderInterface $uploader) {
         $this->security = $security;
+        $this->uploader = $uploader;
     }
 
-        public static function getSubscribedEvents()
+    public static function getSubscribedEvents()
     {
         return [
             TransferEvent::NAME => "onTransfer",
@@ -33,22 +41,26 @@ class CommentSubscriber implements EventSubscriberInterface
      */
     public function onTransfer(TransferEvent $event): void 
     {
-        if(!$event->getOriginalData() instanceof Comment){
+        if(!$event->getOriginalData() instanceof Post){
             return;
         }
-        $event->getData()->setAuthor($event->getOriginalData()->getAuthor());
+        
+        $event->getData()->setTitle($event->getOriginalData()->getTitle());
         $event->getData()->setContent($event->getOriginalData()->getContent());
     }
     
     public function onReverse(ReverseEvent $event): void 
     {
-        if(!$event->getOriginalData() instanceof Comment){
+        if(!$event->getOriginalData() instanceof Post){
             return;
         }
-        if($this->security->isGranted("ROLE_USER")){
-            $event->getOriginalData()->setUser($this->security->getUser());
+        
+        if($event->getData()->getImage() !== null){
+            $event->getOriginalData()->setImage($this->uploader->upload($event->getData()->getImage()));
         }
-        $event->getOriginalData()->setAuthor($event->getData()->getAuthor());
+                
+        $event->getOriginalData()->setUser($this->security->getUser());
+        $event->getOriginalData()->setTitle($event->getData()->getTitle());
         $event->getOriginalData()->setContent($event->getData()->getContent());
     }
 }

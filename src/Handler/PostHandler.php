@@ -4,8 +4,8 @@ namespace App\Handler;
 
 use App\Form\PostType;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Uploader\UploaderInterface;
 use Doctrine\ORM\UnitOfWork;
+use App\DataTransferObject\Post;
 
 class PostHandler extends AbstractHandler {
     /**
@@ -13,14 +13,9 @@ class PostHandler extends AbstractHandler {
      */
     private $entityManager;
     
-    /**
-     * @var UploaderInterface
-     */
-    private $uploader;
 
-    public function __construct(EntityManagerInterface $entityManager, UploaderInterface $uploader) {
+    public function __construct(EntityManagerInterface $entityManager) {
         $this->entityManager = $entityManager;
-        $this->uploader = $uploader;
     }
 
     protected function getFormType(): string {
@@ -28,13 +23,6 @@ class PostHandler extends AbstractHandler {
     }
 
     protected function process($data): void {
-        /** UploadedFile */
-        $file = $this->form->get("file")->getData();
-        
-        if($file !== null){
-            $data->setImage($this->uploader->upload($file));
-        }
-                
         if($this->entityManager->getUnitOfWork()->getEntityState($data) === UnitOfWork::STATE_NEW)
         {
             $this->entityManager->persist($data);
@@ -43,7 +31,7 @@ class PostHandler extends AbstractHandler {
     }
 
     protected function getDataTransferObject(): object {
-        
+        return new Post();
     }
 
 }
