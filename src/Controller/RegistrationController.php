@@ -9,25 +9,28 @@ use App\Form\UserType;
 use App\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use App\Handler\RegistrationHandler;
+use Twig\Environment;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
-class RegistrationController extends AbstractController{
+class RegistrationController
+{
     /**
      * @Route("/inscription", name="registration")
      */
-    public function __invoke(Request $request, UserPasswordEncoderInterface $userPasswordEncoder): Response
-    {
+    public function __invoke(
+        Request $request, 
+        RegistrationHandler $registrationHandler,
+        Environment $twig,
+        UrlGeneratorInterface $urlGenerator
+    ): Response {
         $user = new User();
-        $form = $this->createForm(UserType::class, $user);
-        $form->handleRequest($request);
-        
-        if($form->isSubmitted() && $form->isValid()){
-            $user->setPassword($userPasswordEncoder->encodePassword($user, $form->get("plainPassword")->getData()));
-            $this->getDoctrine()->getManager()->persist($user);
-            $this->getDoctrine()->getManager()->flush();
-            return $this->redirectToRoute("security_login");
+        if($registrationHandler->handle($request, $user)){
+            return new RedirectResponse($urlGenerator->generate("security_login"));
         }
-        return $this->render("registration.html.twig", [
-            "form" => $form->createView()
-        ]);
+        return new Response($twig->render("registration.html.twig", [
+            "form" => $registrationHandler->createView()
+        ]));
     }
 }
