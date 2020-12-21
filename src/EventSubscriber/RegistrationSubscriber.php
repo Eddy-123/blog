@@ -7,7 +7,7 @@ use App\Event\ReverseEvent;
 use App\Event\TransferEvent;
 use Symfony\Component\Security\Core\Security;
 use App\Entity\Comment;
-use App\DataTransferObject\User;
+use App\Entity\User;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 
@@ -42,6 +42,10 @@ class RegistrationSubscriber implements EventSubscriberInterface
     
     public function onReverse(ReverseEvent $event): void 
     {        
+        if(!$event->getOriginalData() instanceof User){
+            return;
+        }
+        
         $event->getOriginalData()->setPseudo($event->getData()->getPseudo());
         $event->getOriginalData()->setEmail($event->getData()->getEmail());
         $event->getOriginalData()->setPassword(

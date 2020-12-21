@@ -22,6 +22,8 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class BlogController
 {
+    use AuthorizationTrait;
+    
     /**
      * @var PostRepository
      */
@@ -81,7 +83,7 @@ class BlogController
         $comment->setPost($post);
         
         if($this->isGranted("ROLE_USER")){
-            $comment->setUser($this->getUser());
+            //$comment->setUser($this->getUser());
         }
         
         $options = [
@@ -110,7 +112,7 @@ class BlogController
     ): Response {
         $this->denyAccessUnlessGranted("ROLE_USER");
         $post = new Post();
-        $post->setUser($this->getUser());
+        //$post->setUser($this->getUser());
         $options = [
             "validation_groups" => ["default", "create"]
         ];
